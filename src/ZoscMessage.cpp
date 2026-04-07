@@ -76,8 +76,9 @@ std::string ZoscMessage::serialize() const {
 			oss.put('t'); // Time tag type
 		}
 	}
+	oss.put('\0');
 	// Align memory with '\0' padding
-	padding = ((4 - ((_arguments.size() + 1) % 4)) % 4);
+	padding = ((4 - ((_arguments.size() + 2) % 4)) % 4);
 	oss.write("\0\0\0", padding);
 
 	// Serialize the arguments
@@ -99,7 +100,8 @@ std::string ZoscMessage::serialize() const {
 			const std::string &value = std::get<std::string>(arg);
 			oss << value;
 			// Align memory with '\0' padding
-			padding = ((4 - (value.size() % 4)) % 4);
+			oss.put('\0');
+			padding = ((4 - ((value.size() + 1) % 4)) % 4);
 			oss.write("\0\0\0", padding);
 			// Serialize blob arg
 		} else if (std::holds_alternative<std::vector<uint8_t>>(arg)) {
